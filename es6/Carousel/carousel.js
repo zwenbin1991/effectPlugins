@@ -1,4 +1,4 @@
-import $ from 'jQuery';
+import * as $ from 'jQuery';
 
 /**
  * 定义Carousel轮播类
