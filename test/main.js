@@ -1,14 +1,21 @@
 require.config({
     baseUrl: '../',
-    shim: {
-        $: ['jQuery']
-    },
     paths: {
-        jQuery: 'lib/jQuery',
-        Carousel: 'src/Carousel/carousel'
+        jquery: 'lib/jquery',
+        carousel: 'src/Carousel/carousel'
     }
 });
 
-require(['Carousel'], function (Carousel) {
-    console.log(Carousel);
+// 无缝轮播
+require(['carousel'], function (carousel) {
+    new carousel.Carousel({
+        speed: 2000,
+        dir: 1,
+        isAutoLoop: true,
+        wrapper: '#wjj',
+        wrapperInner: '.wjj-inner',
+        indexItem: '.index-item'
+    });
 });
+
+
