@@ -14,7 +14,9 @@ require(['carousel'], function (carousel) {
         isAutoLoop: true,
         wrapper: '#wjj',
         wrapperInner: '.wjj-inner',
-        indexItem: '.index-item'
+        indexItem: '.index-item',
+        prevBtn: '.prev-btn',
+        nextBtn: '.next-btn'
     });
 });
 

@@ -20,12 +20,12 @@
 
 #wjj {
     position: relative;
+    width: 300px;
+    margin: 0 auto;
 }
 
 .wjj-wrapper {
     position: relative;
-    display: block;
-    margin: 0 auto;
     width: 300px;
     height: 200px;
     border: 1px solid #000;
@@ -69,3 +69,22 @@
     background: yellow;
 }
 
+.wjj-dir {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 85px;
+    line-height: 30px;
+    text-align: center;
+    z-index: 1;
+    background: #000;
+    cursor: pointer;
+}
+
+.prev-btn {
+    left: -31px;
+}
+
+.next-btn {
+    right: -31px;
+}

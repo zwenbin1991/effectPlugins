@@ -28,8 +28,8 @@ const Carousel = function (options) {
         indexItem: '.index-item',
         indexItemEvent: 'click',
         indexItemClassName: 'active',
-        prevBtn: '.prevBtn',
-        nextBtn: '.nextBtn'
+        prevBtn: '.prev-btn',
+        nextBtn: '.next-btn'
     }, options);
 
     return this.initialize.call(this, options);
@@ -65,23 +65,32 @@ $.extend(Carousel.prototype, {
         // 其他配置信息拷贝到当前实例
         this.copyToContext('speed,dir,timer,isAutoLoop,indexItemEvent,indexItemClassName', options);
 
-        // 初始化为显示第二个元素
+        // 初始化left为第二个元素的left
         this.setWrapperInnerPosition(this.singleItemWidth);
 
-        // 轮播
+        // 设置第一个序号元素为选中状态
+        this.changeIndexItemState();
+
+        // 自动轮播
         this.autoPlay();
 
-        // 轮播hover事件
+        // 绑定轮播hover事件
         constructor.bindEvent.call(this, this.wrapperInner, 'hover', () => clearInterval(this.timer), () => this.autoPlay());
 
-        // 序号点击或者其他事件
-        constructor.bindEvent.call(this, this.indexItem, this.indexItemEvent, (e) => {
+        // 绑定序号点击或者其他事件
+        constructor.bindEvent.call(this, this.indexItem, this.indexItemEvent, e => {
             if (!this.wrapperInner.is(':animated')) {
                 this.currentIndex = constructor.find(e.currentTarget).index() + 1;
                 this.changeIndexItemState();
                 this.setWrapperInnerPosition(this.currentIndex * this.singleItemWidth, true);
             }
         });
+
+        // 左方向按钮事件绑定
+        constructor.bindEvent.call(this, this.prevBtn, 'click', this.unAnimatedStating(0));
+
+        // 右方向按钮事件绑定
+        constructor.bindEvent.call(this, this.nextBtn, 'click', this.unAnimatedStating(1));
     },
 
     copyToContext(props, options) {
@@ -104,25 +113,33 @@ $.extend(Carousel.prototype, {
         this.wrapperInner.css('width', this.singleItemWidth * this.itemListLength);
     },
 
-    setWrapperInnerPosition(position, isAnimate = false) {
-        this.wrapperInner[isAnimate ? 'animate' : 'css']({ left: -position }, 500);
+    setWrapperInnerPosition(position, isAnimate = false, callback) {
+        this.wrapperInner[isAnimate ? 'animate' : 'css']({ left: -position }, 500, callback);
+    },
+
+    unAnimatedStating(dir) {
+        return () => {
+            if (!this.wrapperInner.is(':animated')) {
+                this.dir = dir;
+                this.isAutoLoop = false;
+                this.move(true);
+            }
+        };
     },
 
     cloneItemToHeadAndFooter() {
         let child = this.wrapperInner.children();
-        let first = child.first().clone();
-        let last = child.last().clone();
-
-        this.wrapperInner.prepend(last).append(first);
+        this.wrapperInner
+            .prepend(child.last().clone())
+            .append(child.first().clone());
     },
 
     autoPlay() {
-        if (this.isAutoLoop) this.timer = setInterval(() => this.move(), this.speed);
+        this.timer = setInterval(() =>
+            this.isAutoLoop && this.move(), this.speed);
     },
 
-    move() {
-        let currentIndex = this.currentIndex;
-
+    move(isRestoreAutoLoop) {
         if (this.dir) this.currentIndex++; // right
         else this.currentIndex--; // left
 
@@ -137,12 +154,16 @@ $.extend(Carousel.prototype, {
         }
 
         this.changeIndexItemState();
-        this.setWrapperInnerPosition(this.currentIndex * this.singleItemWidth, true);
+        this.setWrapperInnerPosition(this.currentIndex * this.singleItemWidth, true, isRestoreAutoLoop ? () => { this.isAutoLoop = true; } : void 0);
     },
 
     changeIndexItemState() {
         let className = this.indexItemClassName;
-        this.indexItem.removeClass(className).eq(this.currentIndex - 1).addClass(className);
+        let isLast = this.currentIndex === this.itemListLength - 1;
+        this.indexItem
+            .removeClass(className)
+            .eq(isLast ? 0 : this.currentIndex - 1)
+            .addClass(className);
     }
 });
 
